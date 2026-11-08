@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>IP 訂閱與查詢</title>
+</head>
+<body>
+
+  <label for="regionSelect">選擇省份/城市：</label>
+  <select id="regionSelect" onchange="handleSelectChange()">
+    <option value="">-- 請選擇 --</option>
+  </select>
+
+  <button id="subBtn" onclick="openSubPage()" disabled>打開訂閱頁面</button>
+
+  <h3>IP 列表：</h3>
+  <textarea id="ipOutput" rows="15" cols="50" readonly></textarea>
+
+  <script>
+    let regionData = {};
+
+    // 載入並解析 iplist.txt
+    fetch('iplist.txt')
+      .then(res => res.text())
+      .then(text => {
+        parseIPList(text);
+        populateSelect();
+      });
+
+    function parseIPList(text) {
+      const lines = text.split('\n');
+      let currentRegion = '';
+
+      lines.forEach(line => {
+        line = line.trim();
+        if (!line) return;
+
+        // 判斷是否為地區標頭（不含數字與冒號）
+        if (!line.includes('.') && !line.includes(':')) {
+          currentRegion = line;
+          if (!regionData[currentRegion]) {
+            regionData[currentRegion] = [];
+          }
+        } else if (currentRegion) {
+          regionData[currentRegion].push(line);
+        }
+      });
+    }
+
+    function populateSelect() {
+      const select = document.getElementById('regionSelect');
+      Object.keys(regionData).forEach(region => {
+        const opt = document.createElement('option');
+        opt.value = region;
+        opt.textContent = region;
+        select.appendChild(opt);
+      });
+    }
+
+    function handleSelectChange() {
+      const select = document.getElementById('regionSelect');
+      const val = select.value;
+      const subBtn = document.getElementById('subBtn');
+      const output = document.getElementById('ipOutput');
+
+      if (val && regionData[val]) {
+        output.value = regionData[val].join('\n');
+        subBtn.disabled = false;
+      } else {
+        output.value = '';
+        subBtn.disabled = true;
+      }
+    }
+
+    function openSubPage() {
+      const select = document.getElementById('regionSelect');
+      const val = select.value;
+      if (val) {
+        // 開啟對應地區的獨立 .txt 檔案
+        window.open(`./${encodeURIComponent(val)}.txt`, '_blank');
+      }
+    }
+  </script>
+</body>
+</html>
