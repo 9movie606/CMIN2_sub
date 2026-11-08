@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+# 顯式宣告 Actions 具有寫入 Repository 的權限，避免 403 錯誤
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
