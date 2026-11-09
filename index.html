@@ -3,18 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <title>IP 訂閱與查詢</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; background-color: #1a1a1a; color: #fff; }
+    .row { margin-bottom: 15px; }
+    input[type="text"] { width: 350px; padding: 5px; background: #2a2a2a; color: #fff; border: 1px solid #444; border-radius: 4px; }
+    select { padding: 5px; background: #2a2a2a; color: #fff; border: 1px solid #444; border-radius: 4px; }
+    button { padding: 6px 12px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; cursor: pointer; }
+    button:hover:not(:disabled) { background: #444; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    textarea { width: 100%; max-width: 500px; background: #111; color: #00ff00; border: 1px solid #444; border-radius: 4px; padding: 10px; }
+  </style>
 </head>
 <body>
 
-  <label for="regionSelect">選擇省份/城市：</label>
-  <select id="regionSelect" onchange="handleSelectChange()">
-    <option value="">-- 請選擇 --</option>
-  </select>
+  <div class="row">
+    <label for="regionSelect">選擇省份/城市：</label>
+    <select id="regionSelect" onchange="handleSelectChange()">
+      <option value="">-- 請選擇 --</option>
+    </select>
+  </div>
 
-  <button id="subBtn" onclick="openSubPage()" disabled>打開訂閱頁面</button>
+  <div class="row">
+    <label for="subUrlInput">訂閱地址：</label>
+    <input type="text" id="subUrlInput" readonly />
+    <button id="subBtn" onclick="copySubUrl()" disabled>複製訂閱地址</button>
+  </div>
 
   <h3>IP 列表：</h3>
-  <textarea id="ipOutput" rows="15" cols="50" readonly></textarea>
+  <textarea id="ipOutput" rows="15" readonly></textarea>
 
   <script>
     let regionData = {};
@@ -62,23 +78,40 @@
       const val = select.value;
       const subBtn = document.getElementById('subBtn');
       const output = document.getElementById('ipOutput');
+      const subUrlInput = document.getElementById('subUrlInput');
 
       if (val && regionData[val]) {
         output.value = regionData[val].join('\n');
+        
+        // 自動生成對應地區的完整訂閱 .txt 網址
+        const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+        const subUrl = baseUrl + encodeURIComponent(val) + '.txt';
+        
+        subUrlInput.value = subUrl;
         subBtn.disabled = false;
       } else {
         output.value = '';
+        subUrlInput.value = '';
         subBtn.disabled = true;
       }
     }
 
-    function openSubPage() {
-      const select = document.getElementById('regionSelect');
-      const val = select.value;
-      if (val) {
-        // 開啟對應地區的獨立 .txt 檔案
-        window.open(`./${encodeURIComponent(val)}.txt`, '_blank');
-      }
+    function copySubUrl() {
+      const subUrlInput = document.getElementById('subUrlInput');
+      if (!subUrlInput.value) return;
+
+      navigator.clipboard.writeText(subUrlInput.value).then(() => {
+        const subBtn = document.getElementById('subBtn');
+        const originalText = subBtn.textContent;
+        subBtn.textContent = '已複製！';
+        setTimeout(() => {
+          subBtn.textContent = originalText;
+        }, 1500);
+      }).catch(err => {
+        subUrlInput.select();
+        document.execCommand('copy');
+        alert('已複製訂閱地址：\n' + subUrlInput.value);
+      });
     }
   </script>
 </body>
