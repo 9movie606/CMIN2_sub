@@ -73,23 +73,34 @@
       });
     }
 
-    function handleSelectChange() {
+    async function handleSelectChange() {
       const select = document.getElementById('regionSelect');
       const val = select.value;
       const subBtn = document.getElementById('subBtn');
       const output = document.getElementById('ipOutput');
       const subUrlInput = document.getElementById('subUrlInput');
 
-      if (val && regionData[val]) {
-        // 格式改為 ip:port#地區
-        output.value = regionData[val].map(item => `${item}#${val}`).join('\n');
-        
+      if (val) {
         // 自動生成對應地區的完整訂閱 .txt 網址
         const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
         const subUrl = baseUrl + encodeURIComponent(val) + '.txt';
         
         subUrlInput.value = subUrl;
         subBtn.disabled = false;
+
+        // 直接抓取該地區獨立 .txt 檔案的內容顯示在文本框中
+        try {
+          output.value = '載入中...';
+          const res = await fetch(subUrl);
+          if (res.ok) {
+            const text = await res.text();
+            output.value = text.trim();
+          } else {
+            output.value = '讀取該地區檔案失敗';
+          }
+        } catch (err) {
+          output.value = '請求發生錯誤';
+        }
       } else {
         output.value = '';
         subUrlInput.value = '';
