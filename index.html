@@ -81,7 +81,8 @@
       const subUrlInput = document.getElementById('subUrlInput');
 
       if (val && regionData[val]) {
-        output.value = regionData[val].join('\n');
+        // 格式改為 ip:port#地區
+        output.value = regionData[val].map(item => `${item}#${val}`).join('\n');
         
         // 自動生成對應地區的完整訂閱 .txt 網址
         const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
