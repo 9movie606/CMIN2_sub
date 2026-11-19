@@ -1,3 +1,5 @@
+https://sub.cmin2.dpdns.org
+
 部分地區移動cmin2 優選訂閱
 
 其他運營商無用
