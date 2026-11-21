@@ -203,7 +203,7 @@
         line = line.trim();
         if (!line) return;
 
-        // 判斷是否為地區標頭（不含數字與冒號）
+        // 判斷是否為地區標頭（不含點與冒號）
         if (!line.includes('.') && !line.includes(':')) {
           currentRegion = line;
           if (!regionData[currentRegion]) {
@@ -225,14 +225,14 @@
       });
     }
 
-    async function handleSelectChange() {
+    function handleSelectChange() {
       const select = document.getElementById('regionSelect');
       const val = select.value;
       const subBtn = document.getElementById('subBtn');
       const output = document.getElementById('ipOutput');
       const subUrlInput = document.getElementById('subUrlInput');
 
-      if (val) {
+      if (val && regionData[val]) {
         // 自動生成對應地區的完整訂閱 .txt 網址
         const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
         const subUrl = baseUrl + encodeURIComponent(val) + '.txt';
@@ -240,19 +240,8 @@
         subUrlInput.value = subUrl;
         subBtn.disabled = false;
 
-        // 直接抓取該地區獨立 .txt 檔案的內容顯示在文本框中
-        try {
-          output.value = '載入中...';
-          const res = await fetch(subUrl);
-          if (res.ok) {
-            const text = await res.text();
-            output.value = text.trim();
-          } else {
-            output.value = '讀取該地區檔案失敗';
-          }
-        } catch (err) {
-          output.value = '請求發生錯誤';
-        }
+        // 直接從記憶體中的 regionData 瞬間生成並顯示，0 網路延遲
+        output.value = regionData[val].map(ip => `${ip}#${val}`).join('\n');
       } else {
         output.value = '';
         subUrlInput.value = '';
