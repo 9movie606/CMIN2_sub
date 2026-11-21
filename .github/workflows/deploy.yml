@@ -22,6 +22,13 @@ jobs:
           python-version: '3.x'
 
       - name: Run Generation Script
+        env:
+          # ================= 【後期可手動修改設定區】 =================
+          # 1. all_list.txt 第一行備註說明（若留空 "" 則不加第一行備註）
+          HEADER_NOTE: "# 綜合地區優選節點列表（共60個）"
+          # 2. 抽取的 IP 總數量（修改數字即可調整上限）
+          TARGET_IP_COUNT: "60"
+          # ==========================================================
         run: python generate_subs.py
 
       - name: Deploy to GitHub Pages
